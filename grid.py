@@ -10,9 +10,9 @@ def create_grid(n_rows, n_cols, contents):
 # some constants for use in grids
 empty_grid_space = '.'
 obstacle_grid_space = 'X'
-robot_grid_space = 'R'
 goal_grid_space = '$'
-start_grid_space = '='
+start_grid_space = '+'
+path_grid_space = 'o'
 
 # Grid class represents the state of the grid the robot is trying to move through
 class Grid(object):
@@ -24,25 +24,35 @@ class Grid(object):
         self.grid = create_grid(n_rows, n_cols, empty_grid_space)
         for obstacle in obstacles:
             self.grid[obstacle[0]][obstacle[1]] = obstacle_grid_space
-        self.robot_position = start
         self.start = start
         self.goal = goal
+        self.find_path()
 
     # print the grid in a pleasant to look at way
     def display(self):
         for row in range(len(self.grid)):
             to_print = ''
             for col in range(len(self.grid[row])):
-                if (row, col) == self.robot_position:
-                    to_print += robot_grid_space
-                elif (row, col) == self.goal:
+                if (row, col) == self.goal:
                     to_print += goal_grid_space
                 elif (row, col) == self.start:
                     to_print += start_grid_space
+                elif (row, col) in self.path:
+                    to_print += path_grid_space
                 else:
                     to_print += self.grid[row][col]
             print to_print
 
+    # find shortest path from start to goal. strategy:
+    # 1. make a queue of points to check, initially just the goal point
+    # 2. make a list of distances of each point to the goal point. initially just goal point with distance 0
+    # 3. go through each point in the queue. for each point:
+    # 3a. make a list of neighboring points
+    # 3b. remove neighbors that are off the grid, are obstacles, or have already been checked
+    # 3c. add remaining neighbors to queue
+    # 3d. if the neighbor is the starting point, then we found a shortest path
+    # 4. if no shortest path has been found, there is no path from start to goal
+    # 5. iterate through the path found and store it in self.path
     def find_path(self):
         queue = [self.goal]
         dist = {self.goal: 0}
