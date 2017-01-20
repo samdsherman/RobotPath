@@ -29,16 +29,28 @@ class Grid(object):
                     to_print += self.grid[row][col]
             print to_print
 
+    # check if a position is legal for a robot to move to.
+    # returns True if the position is on the grid and is not an obstacle, False otherwise.
+    def validate_position(self, coordinates):
+        if coordinates[0] >= len(self.grid) or coordinates[1] >= len(self.grid[0]) \
+           or coordinates[0] < 0 or coordinates[1] < 0 \
+           or self.grid[coordinates[0]][coordinates[1]] == grid_spaces['obstacle']:
+            return False
+        else:
+            return True
+
     # find shortest path from start to goal. strategy:
     # 1. make a queue of points to check, initially just the goal point
-    # 2. make a list of distances of each point to the goal point. initially just goal point with distance 0
+    # 2. make a map of distances of each point to the goal point. initially just goal point with distance 0
     # 3. go through each point in the queue. for each point:
     # 3a. make a list of neighboring points
     # 3b. remove neighbors that are off the grid, are obstacles, or have already been checked
-    # 3c. add remaining neighbors to queue
+    # 3c. add remaining neighbors to queue and their distances to the map (current distance + 1)
     # 3d. if the neighbor is the starting point, then we found a shortest path
     # 4. if no shortest path has been found, there is no path from start to goal
-    # 5. iterate through the path found and store it in self.path
+    # 5. to determine the path, make a list initially with only self.start. until we add goal to the list:
+    # 5a. check the neighbors of the last added space until we find one whose distance is 1 less than the current distance
+    # 5b. add that neighbor to the list and repeat
     def find_path(self):
         queue = [self.goal]
         dist = {self.goal: 0}
@@ -49,12 +61,8 @@ class Grid(object):
             neighbors = [(current[0] + 1, current[1]), (current[0] - 1, current[1]),
                          (current[0], current[1] + 1), (current[0], current[1] - 1)]
             for neighbor in neighbors:
-                if neighbor[0] >= len(self.grid) or neighbor[1] >= len(self.grid[0]) \
-                or neighbor[0] < 0 or neighbor[1] < 0:
-                    # neighbor is off the grid
-                    continue
-                if self.grid[neighbor[0]][neighbor[1]] == grid_spaces['obstacle']:
-                    # neighbor is an obstacle
+                if not self.validate_position(neighbor):
+                    # neighbor is off the grid or an obstacle
                     continue
                 if dist.get(neighbor) != None:
                     # neighbor has already been visited
