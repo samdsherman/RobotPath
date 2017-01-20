@@ -1,5 +1,5 @@
 from grid import Grid
-from utils import grid_spaces
+from utils import grid_spaces, get_neighbors
 
 # ExtendedGrid class is like the Grid class, but the robot can move diagonally
 class ExtendedGrid(Grid):
@@ -24,10 +24,8 @@ class ExtendedGrid(Grid):
         path_found = False
         while i < len(queue) and not path_found:
             current = queue[i]
-            orthogonals = [(current[0] + 1, current[1]), (current[0] - 1, current[1]),
-                           (current[0], current[1] + 1), (current[0], current[1] - 1)]
-            diagonals = [(current[0] + 1, current[1] + 1), (current[0] - 1, current[1] - 1),
-                         (current[0] - 1, current[1] + 1), (current[0] + 1, current[1] - 1)]
+            orthogonals = get_neighbors(current)
+            diagonals = get_neighbors(current, True)
             for orthogonal in orthogonals:
                 if not self.validate_position(orthogonal):
                     # orthogonal is off the grid or an obstacle
@@ -58,10 +56,7 @@ class ExtendedGrid(Grid):
         self.path = [self.start]
         while self.path[-1] != self.goal:
             current = self.path[-1]
-            neighbors = [(current[0] + 1, current[1]), (current[0] - 1, current[1]),
-                         (current[0], current[1] + 1), (current[0], current[1] - 1),
-                         (current[0] + 1, current[1] + 1), (current[0] - 1, current[1] - 1),
-                         (current[0] - 1, current[1] + 1), (current[0] + 1, current[1] - 1)]
+            neighbors = get_neighbors(current) + get_neighbors(current, True)
             best_neighbor = None
             for neighbor in neighbors:
                 if dist.get(neighbor) == None:

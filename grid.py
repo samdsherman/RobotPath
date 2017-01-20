@@ -1,4 +1,4 @@
-from utils import create_grid, grid_spaces
+from utils import create_grid, grid_spaces, get_neighbors
 
 # Grid class represents the state of the grid the robot is trying to move through
 class Grid(object):
@@ -58,8 +58,7 @@ class Grid(object):
         path_found = False
         while i < len(queue) and not path_found:
             current = queue[i]
-            neighbors = [(current[0] + 1, current[1]), (current[0] - 1, current[1]),
-                         (current[0], current[1] + 1), (current[0], current[1] - 1)]
+            neighbors = get_neighbors(current)
             for neighbor in neighbors:
                 if not self.validate_position(neighbor):
                     # neighbor is off the grid or an obstacle
@@ -79,8 +78,7 @@ class Grid(object):
         self.path = [self.start]
         while self.path[-1] != self.goal:
             current = self.path[-1]
-            neighbors = [(current[0] + 1, current[1]), (current[0] - 1, current[1]),
-                         (current[0], current[1] + 1), (current[0], current[1] - 1)]
+            neighbors = get_neighbors(current)
             for neighbor in neighbors:
                 if dist.get(neighbor) == dist[current] - 1:
                     self.path.append(neighbor)
