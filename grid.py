@@ -1,18 +1,4 @@
-# helper function to create a 2-d list
-def create_grid(n_rows, n_cols, contents):
-    result = []
-    for row in range(n_rows):
-        result.append([])
-        for col in range(n_cols):
-            result[row].append(contents)
-    return result
-
-# some constants for use in grids
-empty_grid_space = '.'
-obstacle_grid_space = 'X'
-goal_grid_space = '$'
-start_grid_space = '+'
-path_grid_space = 'o'
+from utils import create_grid, grid_spaces
 
 # Grid class represents the state of the grid the robot is trying to move through
 class Grid(object):
@@ -21,9 +7,9 @@ class Grid(object):
     # obstacles is a list of tuples representing points on the grid
     # start and goal are tuples representing a point on the grid
     def __init__(self, n_rows, n_cols, obstacles, start, goal):
-        self.grid = create_grid(n_rows, n_cols, empty_grid_space)
+        self.grid = create_grid(n_rows, n_cols, grid_spaces['empty'])
         for obstacle in obstacles:
-            self.grid[obstacle[0]][obstacle[1]] = obstacle_grid_space
+            self.grid[obstacle[0]][obstacle[1]] = grid_spaces['obstacle']
         self.start = start
         self.goal = goal
         self.find_path()
@@ -34,11 +20,11 @@ class Grid(object):
             to_print = ''
             for col in range(len(self.grid[row])):
                 if (row, col) == self.goal:
-                    to_print += goal_grid_space
+                    to_print += grid_spaces['goal']
                 elif (row, col) == self.start:
-                    to_print += start_grid_space
+                    to_print += grid_spaces['start']
                 elif (row, col) in self.path:
-                    to_print += path_grid_space
+                    to_print += grid_spaces['path']
                 else:
                     to_print += self.grid[row][col]
             print to_print
@@ -67,11 +53,11 @@ class Grid(object):
                 or neighbor[0] < 0 or neighbor[1] < 0:
                     # neighbor is off the grid
                     continue
-                if self.grid[neighbor[0]][neighbor[1]] == obstacle_grid_space:
+                if self.grid[neighbor[0]][neighbor[1]] == grid_spaces['obstacle']:
                     # neighbor is an obstacle
                     continue
-                if dist.get(neighbor) != None and dist[neighbor] < dist[current] + 1:
-                    # neighbor has already been visited more efficiently
+                if dist.get(neighbor) != None:
+                    # neighbor has already been visited
                     continue
                 if neighbor == self.start:
                     path_found = True
@@ -80,6 +66,7 @@ class Grid(object):
             i += 1
         if not path_found:
             print 'No path exists'
+            self.path = []
             return
         self.path = [self.start]
         while self.path[-1] != self.goal:
